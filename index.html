@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="releases"></div>
+
+    <script>
+        const repoOwner = 'phoenixsrd';
+        const repoName = 'autodowm';
+      
+        const apiURL = `https://api.github.com/repos/${repoOwner}/${repoName}/releases`;
+      
+        fetch(apiURL)
+            .then(response => response.json())
+            .then(data => {
+                const releasesContainer = document.getElementById('releases');
+                
+                data.forEach(release => {
+                    const releaseTitle = document.createElement('h1');
+                    releaseTitle.textContent = release.name;
+                    releasesContainer.appendChild(releaseTitle);
+
+                    release.assets.forEach(asset => {
+                        const assetLink = document.createElement('a');
+                        assetLink.href = asset.browser_download_url;
+                        assetLink.textContent = asset.name;
+                        releasesContainer.appendChild(assetLink);
+                        releasesContainer.appendChild(document.createElement('br'));
+                    });
+                });
+            })
+            .catch(error => console.error('Erro Ao Buscar Releases:', error));
+    </script>
+</body>
+</html>
