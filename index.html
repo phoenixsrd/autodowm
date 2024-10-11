@@ -20,7 +20,6 @@
                 
                 data.forEach(release => {
                     const releaseTitle = document.createElement('h1');
-                    releaseTitle.textContent = release.name;
                     releasesContainer.appendChild(releaseTitle);
 
                     release.assets.forEach(asset => {
