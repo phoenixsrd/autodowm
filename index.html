@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif; /* Fonte padrão */
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            margin: 10px 0;
+        }
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div id="releases"><h1>Auto Dowm</h1></a>
+    <div id="releases"><h1>Auto Dowm</h1></div>
 
     <script>
         const repoOwner = 'phoenixsrd';
@@ -20,6 +39,7 @@
                 
                 data.forEach(release => {
                     const releaseTitle = document.createElement('h2');
+                    releaseTitle.textContent = release.name; // Adiciona o nome da release
                     releasesContainer.appendChild(releaseTitle);
 
                     release.assets.forEach(asset => {
