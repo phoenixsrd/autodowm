@@ -1,22 +1,24 @@
 # Auto Down
 
-Este É Um Simples Projeto Web Que Exibe As Releases De Um Repositório GitHub Diretamente Em Uma Página HTML. Ele Foi Desenvolvido Para Facilitar O Acesso Aos Assets Das Releases Sem A Necessidade De Navegar Diretamente Pelo GitHub.
+Este é um simples projeto web que exibe as releases de um repositório GitHub diretamente em uma página HTML. Ele foi desenvolvido para facilitar o acesso aos assets das releases sem a necessidade de navegar diretamente pelo GitHub.
 
 ## Funcionalidades
 
-- Busca Automática Das Releases De Um Repositório GitHub.
-- Exibição Do Nome Das Releases.
-- Links Diretos Para Download Dos Assets De Cada Release.
+Busca automática das releases de um repositório GitHub.
+Exibição do nome das releases.
+Links diretos para download dos assets de cada release.
 
-## Como Funciona
+## Como funciona
 
-O Código JavaScript Integrado Á Página HTML Realiza Uma Requisição Á API Do GitHub Para Buscar As Releases Do Repositório Especificado. Em Seguida, As Informações Das Releases São Exibidas Na Lágina, Com Links Para Download Dos Arquivos.
+O código JavaScript integrado à página HTML realiza uma requisição à API do GitHub para buscar as releases do repositório especificado. Em seguida, as informações das releases são exibidas na página, com links para download dos arquivos.
 
-## Como Usar
+## Como usar
 
-Para utilizar Este Código, Basta Alterar Os Valores Das Constantes `repoOwner` E `repoName` Para O Proprietário E Nome Do Repositório Desejado.
+Para utilizar este código, basta alterar os valores das constantes `repoOwner` e `repoName` para o proprietário e o nome do repositório desejado.
 
 const repoOwner = 'Seu Nome De Usuário';
 const repoName = 'Nome Do Seu Repositório';
 
-Para A API Puxar Seus Arquivos Deixe Seu Repositório Público
+## Atenção 
+
+Para a API buscar seus arquivos, deixe seu repositório público.
