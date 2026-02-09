@@ -3,54 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Dowm - Releases</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-color: #0f1115;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #1f6feb;
+            --border: #30363d;
+            --btn-bg: #21262d;
+        }
+
         body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        h1, h2 {
-            margin: 10px 0;
+
+        h1 {
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            width: 100%;
+            max-width: 800px;
         }
-        a {
-            color: #1e90ff;
+
+        /* Container Principal */
+        #releases {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Cartão da Release */
+        .release-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .release-card:hover {
+            border-color: var(--text-muted);
+        }
+
+        .release-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .release-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .release-tag {
+            background-color: var(--border);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .release-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .release-body {
+            color: var(--text-main);
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Mantém quebras de linha */
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        /* Lista de Assets (Downloads) */
+        .assets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            background-color: var(--btn-bg);
+            color: var(--accent);
             text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+            font-weight: 500;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .download-btn:hover {
+            background-color: var(--border);
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .download-btn i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-size: 1rem;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Loader */
+        .loader {
+            border: 4px solid var(--card-bg);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            color: #ff7b72;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-    <div id="releases"><h1>Auto Dowm</h1></div>
+    <h1><i class="fab fa-github"></i> Auto Dowm</h1>
+    
+    <div id="releases">
+        <div class="loader" id="loader"></div>
+    </div>
 
     <script>
         const repoOwner = 'phoenixsrd';
         const repoName = 'autodowm';
-      
+        
         const apiURL = `https://api.github.com/repos/${repoOwner}/${repoName}/releases`;
-      
+        const releasesContainer = document.getElementById('releases');
+        const loader = document.getElementById('loader');
+
+        const formatDate = (dateString) => {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('pt-BR', options);
+        };
+
+        const formatBytes = (bytes, decimals = 2) => {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        };
+
         fetch(apiURL)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                return response.json();
+            })
             .then(data => {
-                const releasesContainer = document.getElementById('releases');
+                loader.style.display = 'none';
+
+                if (data.length === 0) {
+                    releasesContainer.innerHTML = '<p style="text-align:center">Nenhuma release encontrada.</p>';
+                    return;
+                }
                 
                 data.forEach(release => {
-                    const releaseTitle = document.createElement('h2');
-                    releasesContainer.appendChild(releaseTitle);
+                    const card = document.createElement('div');
+                    card.className = 'release-card';
 
-                    release.assets.forEach(asset => {
-                        const assetLink = document.createElement('a');
-                        assetLink.href = asset.browser_download_url;
-                        assetLink.textContent = asset.name;
-                        releasesContainer.appendChild(assetLink);
-                        releasesContainer.appendChild(document.createElement('br'));
-                    });
+                    const headerHtml = `
+                        <div class="release-header">
+                            <h2 class="release-title">${release.name || release.tag_name}</h2>
+                            <span class="release-tag"><i class="fas fa-tag"></i> ${release.tag_name}</span>
+                            <div class="release-date">Publicado em: ${formatDate(release.published_at)}</div>
+                        </div>
+                    `;
+
+                    const bodyText = release.body ? release.body : "Sem notas de atualização.";
+                    const bodyHtml = `<div class="release-body">${bodyText}</div>`;
+
+                    const assetsContainer = document.createElement('div');
+                    assetsContainer.className = 'assets-list';
+
+                    if (release.assets.length > 0) {
+                        release.assets.forEach(asset => {
+                            const btn = document.createElement('a');
+                            btn.className = 'download-btn';
+                            btn.href = asset.browser_download_url;
+                            btn.innerHTML = `
+                                <i class="fas fa-download"></i>
+                                <div class="file-info">
+                                    <span class="file-name">${asset.name}</span>
+                                    <span class="file-size">${formatBytes(asset.size)} • ${asset.download_count} downloads</span>
+                                </div>
+                            `;
+                            assetsContainer.appendChild(btn);
+                        });
+                    } else {
+                        assetsContainer.innerHTML = '<p style="font-size:0.9rem; color:#8b949e;">Nenhum arquivo anexado (apenas código fonte).</p>';
+                    }
+
+                    card.innerHTML = headerHtml + bodyHtml;
+                    card.appendChild(assetsContainer);
+                    releasesContainer.appendChild(card);
                 });
             })
-            .catch(error => console.error('Erro Ao Buscar Releases:', error));
+            .catch(error => {
+                loader.style.display = 'none';
+                console.error('Erro:', error);
+                releasesContainer.innerHTML = `
+                    <div class="error-msg">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Ops!</h3>
+                        <p>Não foi possível carregar as releases.</p>
+                        <p>Verifique se o repositório é público ou tente novamente mais tarde.</p>
+                        <small>Erro: ${error.message}</small>
+                    </div>
+                `;
+            });
     </script>
 </body>
 </html>
