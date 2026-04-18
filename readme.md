@@ -60,11 +60,3 @@ const repoName = 'SeuRepositorio';
 ```
 
 > O repositório precisa ser público para a API retornar as releases sem autenticação.
-
-## Melhorias sugeridas (próximos passos)
-
-- Paginação para repositórios com muitas releases.
-- Cache local com `localStorage` para reduzir chamadas na API.
-- Botão para copiar link do asset com um clique.
-- Tema claro/escuro com alternância manual.
-- Suporte a múltiplos repositórios configuráveis pela URL (`?owner=&repo=`).
