@@ -26,7 +26,9 @@ Projeto web estático para listar releases de repositórios GitHub e facilitar o
 - Botão “Copiar link” em cada asset.
 - Tema claro/escuro com alternância manual e persistência em `localStorage`.
 
-## Como usar
+```text
+index.html?owner=phoenixsrd&repo=autodowm
+```
 
 1. Abra o `index.html` no navegador.
 2. Opcionalmente, já abra com parâmetros de URL:
