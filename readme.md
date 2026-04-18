@@ -1,24 +1,37 @@
 # Auto Down
 
-Este é um simples projeto web que exibe as releases de um repositório GitHub diretamente em uma página HTML. Ele foi desenvolvido para facilitar o acesso aos assets das releases sem a necessidade de navegar diretamente pelo GitHub.
+Projeto web estático para listar releases de um repositório GitHub e facilitar o download de assets sem precisar navegar manualmente pela página de releases do GitHub.
 
-## Funcionalidades
+## Funcionalidades atuais
 
-Busca automática das releases de um repositório GitHub.
-Exibição do nome das releases.
-Links diretos para download dos assets de cada release.
-
-## Como funciona
-
-O código JavaScript integrado à página HTML realiza uma requisição à API do GitHub para buscar as releases do repositório especificado. Em seguida, as informações das releases são exibidas na página, com links para download dos arquivos.
+- Busca automática de releases via API do GitHub.
+- Exibição de nome, tag, data de publicação e notas da release.
+- Links diretos para download dos assets.
+- Filtro por texto (nome, tag e descrição).
+- Ordenação por:
+  - Mais recentes
+  - Mais antigas
+  - Mais arquivos
+  - Mais downloads
+- Opção para incluir/excluir pré-releases.
+- Resumo com total de releases, arquivos e downloads.
 
 ## Como usar
 
-Para utilizar este código, basta alterar os valores das constantes `repoOwner` e `repoName` para o proprietário e o nome do repositório desejado.
+1. Abra o `index.html` no navegador.
+2. Se quiser apontar para outro repositório, altere:
 
-const repoOwner = 'Seu Nome De Usuário';
-const repoName = 'Nome Do Seu Repositório';
+```js
+const repoOwner = 'SeuNome';
+const repoName = 'SeuRepositorio';
+```
 
-## Atenção 
+> O repositório precisa ser público para a API retornar as releases sem autenticação.
 
-Para a API buscar seus arquivos, deixe seu repositório público.
+## Melhorias sugeridas (próximos passos)
+
+- Paginação para repositórios com muitas releases.
+- Cache local com `localStorage` para reduzir chamadas na API.
+- Botão para copiar link do asset com um clique.
+- Tema claro/escuro com alternância manual.
+- Suporte a múltiplos repositórios configuráveis pela URL (`?owner=&repo=`).
