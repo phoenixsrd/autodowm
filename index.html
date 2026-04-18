@@ -49,6 +49,7 @@
 
         h1 {
             color: var(--text-main);
+            color: #fff;
             margin-bottom: 24px;
             font-size: 2.5rem;
             text-align: center;
@@ -69,6 +70,7 @@
         .toolbar {
             display: grid;
             grid-template-columns: 1.2fr auto auto auto;
+            grid-template-columns: 1fr auto auto;
             gap: 12px;
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -90,6 +92,9 @@
         .toolbar-select,
         .toolbar-button {
             background: var(--btn-bg);
+        .toolbar-input,
+        .toolbar-select {
+            background: #0d1117;
             border: 1px solid var(--border);
             color: var(--text-main);
             border-radius: 6px;
@@ -132,6 +137,7 @@
             font-size: 0.85rem;
             color: var(--text-muted);
             background-color: var(--badge-bg);
+            background-color: var(--card-bg);
         }
 
         #releases {
@@ -147,6 +153,7 @@
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             transition: border-color 0.2s;
         }
 
@@ -359,6 +366,25 @@
                 padding: 10px 12px;
             }
         }
+
+        .empty {
+            text-align: center;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        @media (max-width: 700px) {
+            h1 {
+                font-size: 1.9rem;
+            }
+
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -404,6 +430,16 @@
         const releasesContainer = document.getElementById('releases');
         const summaryContainer = document.getElementById('summary');
         const paginationContainer = document.getElementById('pagination');
+    </main>
+
+    <script>
+        const repoOwner = 'phoenixsrd';
+        const repoName = 'autodowm';
+
+        const apiURL = `https://api.github.com/repos/${repoOwner}/${repoName}/releases`;
+
+        const releasesContainer = document.getElementById('releases');
+        const summaryContainer = document.getElementById('summary');
         const loader = document.getElementById('loader');
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
@@ -419,6 +455,8 @@
             allReleases: [],
             currentPage: 1
         };
+
+        let allReleases = [];
 
         const formatDate = (dateString) => {
             const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -789,6 +827,163 @@
             showPrerelease.addEventListener('change', () => {
                 state.currentPage = 1;
                 renderReleases();
+        const createReleaseBody = (release) => {
+            const body = document.createElement('div');
+            body.className = 'release-body';
+            body.textContent = release.body || 'Sem notas de atualização.';
+            return body;
+        };
+
+        const renderSummary = (releases) => {
+            const assets = releases.reduce((acc, release) => acc + release.assets.length, 0);
+            const downloads = releases.reduce((acc, release) => acc + totalDownloads(release), 0);
+
+            summaryContainer.innerHTML = '';
+
+            const badges = [
+                `Releases exibidas: ${releases.length}`,
+                `Arquivos: ${assets}`,
+                `Downloads totais: ${downloads}`
+            ];
+
+            badges.forEach((label) => {
+                const badge = document.createElement('span');
+                badge.className = 'badge';
+                badge.textContent = label;
+                summaryContainer.appendChild(badge);
+            });
+        };
+
+        const sortReleases = (releases, sortValue) => {
+            const sorted = [...releases];
+
+            if (sortValue === 'oldest') {
+                return sorted.sort((a, b) => new Date(a.published_at) - new Date(b.published_at));
+            }
+
+            if (sortValue === 'assets') {
+                return sorted.sort((a, b) => b.assets.length - a.assets.length);
+            }
+
+            if (sortValue === 'downloads') {
+                return sorted.sort((a, b) => totalDownloads(b) - totalDownloads(a));
+            }
+
+            return sorted.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+        };
+
+        const getFilteredReleases = () => {
+            const query = searchInput.value.trim().toLowerCase();
+            const includePrerelease = showPrerelease.checked;
+
+            return allReleases.filter((release) => {
+                if (!includePrerelease && release.prerelease) {
+                    return false;
+                }
+
+                if (!query) {
+                    return true;
+                }
+
+                const haystack = [release.name, release.tag_name, release.body].join(' ').toLowerCase();
+                return haystack.includes(query);
+            });
+        };
+
+        const renderReleases = () => {
+            releasesContainer.innerHTML = '';
+            const filtered = getFilteredReleases();
+            const sorted = sortReleases(filtered, sortSelect.value);
+            renderSummary(sorted);
+
+            if (sorted.length === 0) {
+                releasesContainer.innerHTML = '<div class="empty">Nenhum resultado encontrado com os filtros atuais.</div>';
+                return;
+            }
+
+            sorted.forEach((release) => {
+                const card = document.createElement('article');
+                card.className = 'release-card';
+
+                const header = document.createElement('div');
+                header.className = 'release-header';
+                header.innerHTML = `
+                    <h2 class="release-title"><a href="${release.html_url}" target="_blank" rel="noopener noreferrer">${release.name || release.tag_name}</a></h2>
+                    <span class="release-tag"><i class="fas fa-tag"></i> ${release.tag_name}</span>
+                    ${release.prerelease ? '<span class="release-tag prerelease">Pré-release</span>' : ''}
+                    <div class="release-date">Publicado em: ${formatDate(release.published_at)} • ${release.assets.length} arquivo(s) • ${totalDownloads(release)} downloads</div>
+                `;
+
+                const body = createReleaseBody(release);
+                const assetsContainer = document.createElement('div');
+                assetsContainer.className = 'assets-list';
+
+                if (release.assets.length > 0) {
+                    release.assets.forEach((asset) => {
+                        const btn = document.createElement('a');
+                        btn.className = 'download-btn';
+                        btn.href = asset.browser_download_url;
+                        btn.target = '_blank';
+                        btn.rel = 'noopener noreferrer';
+                        btn.innerHTML = `
+                            <i class="fas fa-download"></i>
+                            <div class="file-info">
+                                <span class="file-name">${asset.name}</span>
+                                <span class="file-size">${formatBytes(asset.size)} • ${asset.download_count} downloads</span>
+                            </div>
+                        `;
+                        assetsContainer.appendChild(btn);
+                    });
+                } else {
+                    assetsContainer.innerHTML = '<p style="font-size:0.9rem; color:#8b949e;">Nenhum arquivo anexado (apenas código fonte).</p>';
+                }
+
+                card.appendChild(header);
+                card.appendChild(body);
+                card.appendChild(assetsContainer);
+                releasesContainer.appendChild(card);
+            });
+        };
+
+        const attachControls = () => {
+            searchInput.addEventListener('input', renderReleases);
+            sortSelect.addEventListener('change', renderReleases);
+            showPrerelease.addEventListener('change', renderReleases);
+        };
+
+        fetch(apiURL)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((data) => {
+                loader.style.display = 'none';
+                allReleases = Array.isArray(data) ? data : [];
+
+                if (allReleases.length === 0) {
+                    releasesContainer.innerHTML = '<div class="empty">Nenhuma release encontrada para este repositório.</div>';
+                    renderSummary([]);
+                    return;
+                }
+
+                attachControls();
+                renderReleases();
+            })
+            .catch((error) => {
+                loader.style.display = 'none';
+                console.error('Erro:', error);
+                releasesContainer.innerHTML = `
+                    <div class="error-msg">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Ops!</h3>
+                        <p>Não foi possível carregar as releases.</p>
+                        <p>Verifique se o repositório é público ou tente novamente mais tarde.</p>
+                        <small>Erro: ${error.message}</small>
+                    </div>
+                `;
+                renderSummary([]);
             });
             applyRepoBtn.addEventListener('click', updateRepoFromInputs);
             themeToggle.addEventListener('click', toggleTheme);
