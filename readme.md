@@ -1,47 +1,64 @@
-# Auto Down
+# 📦 Auto Dowm
 
-Projeto web estático para listar releases de repositórios GitHub e facilitar o download de assets sem precisar navegar manualmente pela página de releases.
+O **Auto Dowm** é uma página web estática que transforma a API de releases do GitHub em um painel de consulta e download. Ele é útil quando você quer encontrar rapidamente uma versão, seus assets, notas e links diretos sem navegar manualmente por várias páginas do GitHub.
 
-## Funcionalidades atuais
+## O que ele faz
 
-- Busca de releases via API do GitHub com paginação automática (`per_page=100` + múltiplas páginas quando necessário).
-- Suporte a múltiplos repositórios configuráveis por URL:
-  - `?owner=SEU_OWNER&repo=SEU_REPO`
-- Barra de configuração para trocar `owner/repo` em tempo real.
-- Busca por texto (nome, tag e descrição).
-- Ordenação por:
-  - Mais recentes
-  - Mais antigas
-  - Mais arquivos
-  - Mais downloads
-- Opção para incluir/excluir pré-releases.
-- Paginação para listas grandes (6 releases por página na UI).
-- Resumo dinâmico com:
-  - Repositório atual
-  - Total de releases exibidas
-  - Total de arquivos
-  - Total de downloads
-  - Página atual
-- Cache local com `localStorage` (TTL de 5 minutos) para reduzir chamadas na API.
-- Botão “Copiar link” em cada asset.
-- Tema claro/escuro com alternância manual e persistência em `localStorage`.
+- Consulta todas as releases públicas de um repositório, com paginação automática da API.
+- Permite trocar o `owner/repo` pela interface ou pela URL.
+- Pesquisa por nome, tag e descrição da release.
+- Ordena por data, quantidade de arquivos ou total de downloads.
+- Inclui ou oculta pré-releases.
+- Exibe seis releases por página, com resumo de arquivos e downloads.
+- Oferece download direto de cada asset e botão para copiar o link.
+- Mantém cache local por cinco minutos para reduzir chamadas à API.
+- Persiste o tema claro/escuro no `localStorage`.
+- Mostra mensagens de erro quando o repositório não é público ou a API falha.
+
+## Fluxo de dados
+
+O `index.html` lê os parâmetros `owner` e `repo`, chama `https://api.github.com/repos/{owner}/{repo}/releases`, percorre as páginas de 100 itens e guarda o resultado no cache do navegador. Os filtros e a ordenação são aplicados localmente, sem backend ou banco de dados.
 
 ```text
-index.html?owner=phoenixsrd&repo=autodowm
+URL/parâmetros → GitHub Releases API → cache local → filtros/ordenação → cards e paginação
 ```
 
-1. Abra o `index.html` no navegador.
-2. Opcionalmente, já abra com parâmetros de URL:
+## Uso rápido
+
+```bash
+git clone https://github.com/phoenixsrd/autodowm.git
+cd autodowm
+python3 -m http.server 8080
+```
+
+Abra uma destas URLs:
 
 ```text
-index.html?owner=phoenixsrd&repo=autodowm
+http://localhost:8080/
+http://localhost:8080/?owner=phoenixsrd&repo=autodowm
 ```
 
-3. Use a barra superior para:
-   - Trocar `owner/repo`
-   - Buscar e ordenar releases
-   - Incluir pré-releases
-   - Alternar entre tema claro/escuro
-4. Clique em **Carregar** para atualizar o repositório alvo.
+Também é possível abrir `index.html` diretamente no navegador, mas um servidor HTTP é recomendado para reproduzir o ambiente de deploy.
 
-> O repositório precisa ser público para a API retornar as releases sem autenticação.
+## Interface
+
+1. Informe o proprietário e o nome do repositório.
+2. Clique em **Carregar**.
+3. Use a busca, a ordenação e o filtro de pré-releases.
+4. Clique no nome da release para abrir sua página no GitHub ou em um asset para baixá-lo.
+5. Use **Copiar link** para compartilhar o endereço direto do arquivo.
+
+## Estrutura
+
+```text
+index.html  # Aplicação completa: HTML, CSS e JavaScript
+favicon.ico # Ícone do site
+.github/    # Configurações auxiliares do GitHub
+```
+
+## Limitações
+
+- A API pública do GitHub possui limite de requisições por IP.
+- Apenas repositórios públicos funcionam sem autenticação.
+- O aplicativo não hospeda os arquivos: os downloads vêm diretamente do GitHub.
+- O cache pode exibir dados antigos por até cinco minutos; carregue novamente para atualizar.
