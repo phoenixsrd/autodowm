@@ -5,14 +5,14 @@ O **Auto Dowm** é uma página web estática que transforma a API de releases do
 ## O que ele faz
 
 - Consulta todas as releases públicas de um repositório, com paginação automática da API.
-- Permite trocar o `owner/repo` pela interface ou pela URL.
+- Permite trocar o `owner/repo` pela interface ou pela URL. O padrão é `phoenixsrd/autodowm`.
 - Pesquisa por nome, tag e descrição da release.
-- Ordena por data, quantidade de arquivos ou total de downloads.
-- Inclui ou oculta pré-releases.
+- Ordena por mais recentes, mais antigas, mais arquivos ou mais downloads.
+- Oculta pré-releases por padrão; a caixa **Incluir pré-releases** as exibe.
 - Exibe seis releases por página, com resumo de arquivos e downloads.
 - Oferece download direto de cada asset e botão para copiar o link.
 - Mantém cache local por cinco minutos para reduzir chamadas à API.
-- Persiste o tema claro/escuro no `localStorage`.
+- Persiste o tema claro/escuro no `localStorage`, respeitando a preferência do sistema na primeira visita.
 - Mostra mensagens de erro quando o repositório não é público ou a API falha.
 
 ## Fluxo de dados
@@ -46,7 +46,7 @@ Também é possível abrir `index.html` diretamente no navegador, mas um servido
 2. Clique em **Carregar**.
 3. Use a busca, a ordenação e o filtro de pré-releases.
 4. Clique no nome da release para abrir sua página no GitHub ou em um asset para baixá-lo.
-5. Use **Copiar link** para compartilhar o endereço direto do arquivo.
+5. Use **Copiar link** para copiar o endereço direto do arquivo.
 
 ## Estrutura
 
@@ -56,9 +56,11 @@ favicon.ico # Ícone do site
 .github/    # Configurações auxiliares do GitHub
 ```
 
+Os ícones vêm do Font Awesome, carregado por CDN (`cdnjs.cloudflare.com`). Sem conexão com o CDN, a página funciona, mas sem ícones.
+
 ## Limitações
 
 - A API pública do GitHub possui limite de requisições por IP.
 - Apenas repositórios públicos funcionam sem autenticação.
 - O aplicativo não hospeda os arquivos: os downloads vêm diretamente do GitHub.
-- O cache pode exibir dados antigos por até cinco minutos; carregue novamente para atualizar.
+- O cache pode exibir dados antigos por até cinco minutos. Para forçar a atualização, aguarde o cache expirar.
